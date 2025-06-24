@@ -14,6 +14,7 @@ import {
   PhotoIcon,
   RectangleStackIcon,
   UserIcon,
+  UsersIcon,
   CogIcon,
   Bars3Icon,
   XMarkIcon,
@@ -193,6 +194,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       href: "/admin/vendedores",
       icon: UserIcon,
       current: pathname?.startsWith("/admin/vendedores"),
+    },
+    {
+      name: "Usuários",
+      href: "/admin/usuarios",
+      icon: UsersIcon,
+      current: pathname?.startsWith("/admin/usuarios"),
     },
     {
       name: "Configurações",

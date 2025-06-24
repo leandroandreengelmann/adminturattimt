@@ -11,6 +11,8 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showResendEmail, setShowResendEmail] = useState(false);
+  const [resendingEmail, setResendingEmail] = useState(false);
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -26,7 +28,28 @@ export default function LoginPage() {
 
       if (error) {
         console.error("Erro de login:", error);
-        setError(`Erro: ${error.message}`);
+
+        // Tratar diferentes tipos de erro com mensagens específicas
+        if (error.message.includes("Email not confirmed")) {
+          setError(
+            "📧 Email não confirmado! Verifique sua caixa de entrada e clique no link de confirmação enviado para seu email. Se não encontrar o email, verifique a pasta de spam."
+          );
+          setShowResendEmail(true);
+        } else if (error.message.includes("Invalid login credentials")) {
+          setError(
+            "❌ Email ou senha incorretos. Verifique suas credenciais e tente novamente."
+          );
+        } else if (error.message.includes("Too many requests")) {
+          setError(
+            "⏰ Muitas tentativas de login. Aguarde alguns minutos antes de tentar novamente."
+          );
+        } else if (error.message.includes("User not found")) {
+          setError(
+            "👤 Usuário não encontrado. Verifique se o email está correto ou entre em contato com o administrador."
+          );
+        } else {
+          setError(`❌ Erro de login: ${error.message}`);
+        }
       } else if (data.user) {
         console.log("Login bem-sucedido:", data.user);
         // Aguardar um pouco para garantir que a sessão foi estabelecida
@@ -40,6 +63,37 @@ export default function LoginPage() {
     }
 
     setIsLoading(false);
+  };
+
+  const handleResendEmail = async () => {
+    if (!email.trim()) {
+      setError("❌ Digite seu email para reenviar a confirmação.");
+      return;
+    }
+
+    setResendingEmail(true);
+    setError("");
+
+    try {
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email: email.trim(),
+      });
+
+      if (error) {
+        setError(`❌ Erro ao reenviar email: ${error.message}`);
+      } else {
+        setError(
+          "✅ Email de confirmação reenviado! Verifique sua caixa de entrada."
+        );
+        setShowResendEmail(false);
+      }
+    } catch (err) {
+      console.error("Erro ao reenviar email:", err);
+      setError("❌ Erro inesperado ao reenviar email. Tente novamente.");
+    }
+
+    setResendingEmail(false);
   };
 
   return (
@@ -74,8 +128,28 @@ export default function LoginPage() {
         <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
           <form className="space-y-6" onSubmit={handleLogin}>
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+              <div
+                className={`border px-4 py-3 rounded-lg text-sm ${
+                  error.includes("✅")
+                    ? "bg-green-50 border-green-200 text-green-700"
+                    : "bg-red-50 border-red-200 text-red-700"
+                }`}
+              >
                 {error}
+                {showResendEmail && (
+                  <div className="mt-3">
+                    <button
+                      type="button"
+                      onClick={handleResendEmail}
+                      disabled={resendingEmail}
+                      className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors"
+                    >
+                      {resendingEmail
+                        ? "Reenviando..."
+                        : "Reenviar Email de Confirmação"}
+                    </button>
+                  </div>
+                )}
               </div>
             )}
 
@@ -95,7 +169,11 @@ export default function LoginPage() {
                 className="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
                 placeholder="seu@email.com"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setShowResendEmail(false);
+                  setError("");
+                }}
               />
             </div>
 
