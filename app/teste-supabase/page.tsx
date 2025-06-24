@@ -3,9 +3,13 @@
 import { useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 
+type Produto = { id: number; nome: string; preco: number; status: string };
+
 export default function TesteSupabasePage() {
-  const [usuarios, setUsuarios] = useState<any[]>([]);
-  const [produtos, setProdutos] = useState<any[]>([]);
+  const [usuarios, setUsuarios] = useState<{ id: string; email?: string }[]>(
+    []
+  );
+  const [produtos, setProdutos] = useState<Produto[]>([]);
   const [erros, setErros] = useState<string>("");
   const [loading, setLoading] = useState(false);
 
@@ -25,8 +29,12 @@ export default function TesteSupabasePage() {
       } else {
         setUsuarios(users?.users || []);
       }
-    } catch (err: any) {
-      errosTemp += `Erro inesperado usuários: ${err?.message || err}\n`;
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        errosTemp += `Erro inesperado usuários: ${err.message}\n`;
+      } else {
+        errosTemp += `Erro inesperado usuários: ${String(err)}\n`;
+      }
     }
 
     // Buscar produtos
@@ -40,8 +48,12 @@ export default function TesteSupabasePage() {
       } else {
         setProdutos(produtosData || []);
       }
-    } catch (err: any) {
-      errosTemp += `Erro inesperado produtos: ${err?.message || err}\n`;
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        errosTemp += `Erro inesperado produtos: ${err.message}\n`;
+      } else {
+        errosTemp += `Erro inesperado produtos: ${String(err)}\n`;
+      }
     }
 
     setErros(errosTemp);

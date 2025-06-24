@@ -9,8 +9,6 @@ import {
   TagIcon,
   CurrencyDollarIcon,
   SparklesIcon,
-  PaintBrushIcon,
-  BoltIcon,
   PhotoIcon,
   XMarkIcon,
   StarIcon,

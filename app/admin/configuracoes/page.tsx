@@ -38,8 +38,7 @@ export default function ConfiguracoesPage() {
   const [filtroCategoria, setFiltroCategoria] = useState("");
   const [filtroStatus, setFiltroStatus] = useState("");
 
-  const { ToastComponent, showSuccess, showError, showInfo, showWarning } =
-    useToast();
+  const { ToastComponent, showSuccess, showError, showInfo } = useToast();
 
   useEffect(() => {
     fetchConfiguracoes();
