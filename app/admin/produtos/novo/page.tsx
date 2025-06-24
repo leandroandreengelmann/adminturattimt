@@ -65,7 +65,8 @@ export default function NovoProdutoPage() {
           `
           id,
           nome,
-          categorias (
+          categoria_id,
+          categorias!inner (
             nome
           )
         `
@@ -74,7 +75,23 @@ export default function NovoProdutoPage() {
         .order("nome");
 
       if (error) throw error;
-      setSubcategorias(data || []);
+
+      // Mapear os dados para garantir que categorias seja um objeto único
+      const mappedData = (data || []).map(
+        (item: {
+          id: number;
+          nome: string;
+          categorias: { nome: string } | { nome: string }[];
+        }) => ({
+          id: item.id,
+          nome: item.nome,
+          categorias: Array.isArray(item.categorias)
+            ? item.categorias[0]
+            : item.categorias,
+        })
+      );
+
+      setSubcategorias(mappedData);
     } catch (error) {
       console.error("Erro ao buscar subcategorias:", error);
       showError("Erro", "Não foi possível carregar as subcategorias.");
