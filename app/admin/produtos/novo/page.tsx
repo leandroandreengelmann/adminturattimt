@@ -875,7 +875,7 @@ export default function NovoProdutoPage() {
                               image.substring(0, 50) + "..."
                             );
                           }}
-                          onError={(e) => {
+                          onError={() => {
                             console.error(
                               `❌ Erro ao carregar imagem ${index + 1}:`,
                               image
