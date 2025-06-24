@@ -22,7 +22,11 @@ interface Logo {
   updated_at: string;
 }
 
-export default function EditarLogoPage({ params }: { params: { id: string } }) {
+export default function EditarLogoPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const [logo, setLogo] = useState<Logo | null>(null);
   const [formData, setFormData] = useState({
     nome: "",
@@ -36,18 +40,29 @@ export default function EditarLogoPage({ params }: { params: { id: string } }) {
   const [uploading, setUploading] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
+  const [logoId, setLogoId] = useState<string>("");
   const router = useRouter();
 
   useEffect(() => {
-    carregarLogo();
-  }, [params.id]);
+    const loadParams = async () => {
+      const resolvedParams = await params;
+      setLogoId(resolvedParams.id);
+    };
+    loadParams();
+  }, [params]);
+
+  useEffect(() => {
+    if (logoId) {
+      carregarLogo();
+    }
+  }, [logoId]);
 
   const carregarLogo = async () => {
     try {
       const { data, error } = await supabase
         .from("logos")
         .select("*")
-        .eq("id", params.id)
+        .eq("id", logoId)
         .single();
 
       if (error) throw error;
@@ -157,7 +172,7 @@ export default function EditarLogoPage({ params }: { params: { id: string } }) {
           imagem_url: imageUrl,
           updated_at: new Date().toISOString(),
         })
-        .eq("id", params.id);
+        .eq("id", logoId);
 
       if (error) throw error;
 
@@ -183,10 +198,7 @@ export default function EditarLogoPage({ params }: { params: { id: string } }) {
     setSaving(true);
 
     try {
-      const { error } = await supabase
-        .from("logos")
-        .delete()
-        .eq("id", params.id);
+      const { error } = await supabase.from("logos").delete().eq("id", logoId);
 
       if (error) throw error;
 
