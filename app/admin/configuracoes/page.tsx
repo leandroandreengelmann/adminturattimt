@@ -47,7 +47,6 @@ export default function ConfiguracoesPage() {
   const fetchConfiguracoes = async () => {
     try {
       setLoading(true);
-      showInfo("Carregando", "Buscando configurações do sistema...");
 
       const { data, error } = await supabase
         .from("configuracoes")
@@ -58,10 +57,6 @@ export default function ConfiguracoesPage() {
       if (error) throw error;
 
       setConfiguracoes(data || []);
-      showSuccess(
-        "Configurações Carregadas",
-        `${data?.length || 0} configurações encontradas.`
-      );
     } catch (error) {
       console.error("Erro ao buscar configurações:", error);
       showError(

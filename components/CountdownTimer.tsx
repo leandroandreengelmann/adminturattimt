@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ClockIcon } from "@heroicons/react/24/outline";
 
 interface CountdownTimerProps {
@@ -28,9 +28,14 @@ export default function CountdownTimer({
     seconds: 0,
   });
   const [isExpired, setIsExpired] = useState(false);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const isVisibleRef = useRef(true);
 
   useEffect(() => {
     const calculateTimeLeft = () => {
+      // Só atualizar se o componente estiver visível
+      if (!isVisibleRef.current) return;
+
       const now = new Date().getTime();
       const end = new Date(endDate).getTime();
       const difference = end - now;
@@ -50,17 +55,42 @@ export default function CountdownTimer({
       } else {
         setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
         setIsExpired(true);
+        // Parar o timer quando expirar
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
+        }
       }
     };
 
     // Calcular imediatamente
     calculateTimeLeft();
 
-    // Atualizar a cada segundo
-    const timer = setInterval(calculateTimeLeft, 1000);
+    // Se já expirado, não iniciar timer
+    if (isExpired || promocaoStatus === "expirada") {
+      return;
+    }
 
-    return () => clearInterval(timer);
-  }, [endDate]);
+    // Atualizar a cada segundo apenas se não expirado
+    intervalRef.current = setInterval(calculateTimeLeft, 1000);
+
+    // Detectar visibilidade da página para pausar/retomar timer
+    const handleVisibilityChange = () => {
+      isVisibleRef.current = !document.hidden;
+      if (!document.hidden && !isExpired) {
+        calculateTimeLeft(); // Recalcular quando voltar a ser visível
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [endDate, isExpired, promocaoStatus]);
 
   if (isExpired || promocaoStatus === "expirada") {
     return (

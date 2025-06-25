@@ -52,7 +52,6 @@ export default function LojasPage() {
   const fetchLojas = async () => {
     try {
       setLoading(true);
-      showInfo("Carregando", "Buscando lojas...");
 
       const { data, error } = await supabase
         .from("lojas")
@@ -63,7 +62,6 @@ export default function LojasPage() {
       if (error) throw error;
 
       setLojas(data || []);
-      showSuccess("Carregado", `${data?.length || 0} lojas encontradas.`);
     } catch (error) {
       console.error("Erro ao buscar lojas:", error);
       showError(

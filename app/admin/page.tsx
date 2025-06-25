@@ -71,7 +71,8 @@ export default function AdminDashboard() {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      showInfo("Carregando Dashboard", "Buscando dados do sistema...");
+      // Removido toast de carregamento para melhor performance
+      // showInfo("Carregando Dashboard", "Buscando dados do sistema...");
 
       // Buscar estatísticas em paralelo
       const [

@@ -163,33 +163,6 @@ export default function SubcategoriasPage() {
     inativas: subcategorias.filter((s) => s.status === "inativa").length,
   };
 
-  // Efeito para notificar sobre filtros aplicados
-  useEffect(() => {
-    if (
-      subcategorias.length > 0 &&
-      (busca || filtroStatus !== "todas" || filtroCategoria !== "todas")
-    ) {
-      const totalFiltradas = subcategoriasFiltradas.length;
-      if (totalFiltradas === 0) {
-        showWarning(
-          "Nenhum Resultado",
-          "Nenhuma subcategoria encontrada com os filtros aplicados."
-        );
-      } else {
-        showInfo(
-          "Filtros Aplicados",
-          `${totalFiltradas} subcategoria(s) encontrada(s) com os filtros atuais.`
-        );
-      }
-    }
-  }, [
-    busca,
-    filtroStatus,
-    filtroCategoria,
-    subcategoriasFiltradas.length,
-    subcategorias.length,
-  ]);
-
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">

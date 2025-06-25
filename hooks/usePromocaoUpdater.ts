@@ -1,9 +1,19 @@
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/lib/supabaseClient";
 
 export const usePromocaoUpdater = (onUpdate?: () => void) => {
+  const lastCheckRef = useRef<number>(0);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
   const updateExpiredPromocoes = useCallback(async () => {
     try {
+      // Evitar verificações muito frequentes (mínimo 5 minutos)
+      const now = Date.now();
+      if (now - lastCheckRef.current < 5 * 60 * 1000) {
+        return;
+      }
+
+      lastCheckRef.current = now;
       console.log("Verificando promoções expiradas...");
 
       // Buscar produtos com promoções ativas que podem ter expirado
@@ -88,13 +98,17 @@ export const usePromocaoUpdater = (onUpdate?: () => void) => {
   }, [updateExpiredPromocoes, onUpdate]);
 
   useEffect(() => {
-    // Verificar imediatamente quando o hook é montado
+    // Verificar apenas uma vez quando o componente monta
     updateExpiredPromocoes();
 
-    // Configurar intervalo para verificar a cada 1 minuto
-    const interval = setInterval(updateExpiredPromocoes, 60000);
+    // Configurar intervalo para verificar a cada 10 minutos (reduzido de 1 minuto)
+    intervalRef.current = setInterval(updateExpiredPromocoes, 10 * 60 * 1000);
 
-    return () => clearInterval(interval);
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
   }, [updateExpiredPromocoes]);
 
   return {

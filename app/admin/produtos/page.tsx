@@ -90,7 +90,6 @@ export default function ProdutosPage() {
   const fetchProdutos = async () => {
     try {
       setLoading(true);
-      showInfo("Carregando Produtos", "Buscando lista de produtos...");
 
       const { data, error } = await supabase
         .from("produtos")
@@ -110,10 +109,6 @@ export default function ProdutosPage() {
       if (error) throw error;
 
       setProdutos(data || []);
-      showSuccess(
-        "Produtos Carregados",
-        `${data?.length || 0} produtos encontrados no sistema.`
-      );
     } catch (error) {
       console.error("Erro ao buscar produtos:", error);
       showError(

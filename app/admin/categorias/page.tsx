@@ -145,24 +145,6 @@ export default function CategoriasPage() {
     inativas: categorias.filter((c) => c.status === "inativa").length,
   };
 
-  // Efeito para notificar sobre filtros aplicados
-  useEffect(() => {
-    if (categorias.length > 0 && (busca || filtroStatus !== "todas")) {
-      const totalFiltradas = categoriasFiltradas.length;
-      if (totalFiltradas === 0) {
-        showWarning(
-          "Nenhum Resultado",
-          "Nenhuma categoria encontrada com os filtros aplicados."
-        );
-      } else {
-        showInfo(
-          "Filtros Aplicados",
-          `${totalFiltradas} categoria(s) encontrada(s) com os filtros atuais.`
-        );
-      }
-    }
-  }, [busca, filtroStatus, categoriasFiltradas.length, categorias.length]);
-
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
